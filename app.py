@@ -34,7 +34,6 @@ def ping_server(server):
             return 'Offline'
     except ValueError:
         # If the IP address is invalid
-        print(f"Invalid IP address: {server['ip']}")
         return "Error - Invalid IP"
     except Exception as e:
         # Other exceptions
@@ -50,11 +49,18 @@ def home():
     if request.method == 'POST':
         selected_server = request.form.get('server')
         selected_port = request.form.get('port')
+        selected_protocol = request.form.get('protocol')
         test_duration = request.form.get('duration', type=int)
+
 
         # Run iperf3 test
         try:
-            command = f'iperf3 -c {selected_server} -p {selected_port} -t {test_duration}'
+            if selected_protocol == 'udp':
+                print('UDP got selected!')
+                command = f'iperf -c {selected_server} -p {selected_port} -t {test_duration} --udp'
+            else:
+                print('TCP got selected!')
+                command = f'iperf -c {selected_server} -p {selected_port} -t {test_duration}'
             test_result = subprocess.check_output(command, shell=True).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_result = e.output.decode('utf-8')

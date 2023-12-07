@@ -1,83 +1,97 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Bandbreiten Messen</title>
-    
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <script type="text/javascript">
-        function updateStatus(ip, elementId) {
-            fetch('/ping/' + ip)
-                .then(response => response.json())
-                .then(data => {
-                    var statusElement = document.getElementById(elementId);
-                    statusElement.innerText = 'Status: ' + data.status;
-                    if (data.status === 'Online') {
-                        statusElement.className = 'status-online';
-                    } else {
-                        statusElement.className = 'status-offline';
-                    }
-                })
-                .catch(error => {
-                    var statusElement = document.getElementById(elementId);
-                    statusElement.innerText = 'Status: Error';
-                    statusElement.className = 'status-error';
-                });
-        }
-        function updateDurationDisplay(value) {
-            document.getElementById('durationValue').innerText = value;
-        }
-    </script>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='mb-web-logo.ico') }}">
-</head>
-<body>
-    <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
-    <h1>Bandbreiten Messen</h1>
-    <ul>
-        {% for server in servers %}
-        <li>
-            {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
-            <script type="text/javascript">
-                updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
-            </script>
-        </li>
-        {% endfor %}
-    </ul>
-
-<!-- Form for selecting server, port, and test duration -->
-<form method="post" action="/">
-    <div>
-        <label for="server">Choose a server:</label>
-        <select name="server" id="server">
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Bandbreiten Messen</title>
+        
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+        <script type="text/javascript">
+            function updateStatus(ip, elementId) {
+                fetch('/ping/' + ip)
+                    .then(response => response.json())
+                    .then(data => {
+                        var statusElement = document.getElementById(elementId);
+                        statusElement.innerText = 'Status: ' + data.status;
+                        if (data.status === 'Online') {
+                            statusElement.className = 'status-online';
+                        } else {
+                            statusElement.className = 'status-offline';
+                        }
+                    })
+                    .catch(error => {
+                        var statusElement = document.getElementById(elementId);
+                        statusElement.innerText = 'Status: Error';
+                        statusElement.className = 'status-error';
+                    });
+            }
+            function updateDurationDisplay(value) {
+                document.getElementById('durationValue').innerText = value;
+            }
+        </script>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='mb-web-logo.ico') }}">
+    </head>
+    <body>
+        <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
+        <h1>Bandbreiten Messen</h1>
+        <ul>
             {% for server in servers %}
-            <option value="{{ server.ip }}">{{ server.name }}</option>
+            <li>
+                {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
+                <script type="text/javascript">
+                    updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
+                </script>
+            </li>
             {% endfor %}
-        </select>
-    </div>
+        </ul>
 
-    <div>
-        <label for="port">Choose a port:</label>
-        <select name="port" id="port">
-            {% for port in ports %}
-            <option value="{{ port }}">{{ port }}</option>
-            {% endfor %}
-        </select>
-    </div>
+    <!-- Form for selecting server, port, test duration, protocol, and transport -->
+    <form method="post" action="/">
+        <div>
+            <label for="server">Choose a server:</label>
+            <select name="server" id="server">
+                {% for server in servers %}
+                <option value="{{ server.ip }}">{{ server.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <div>
-        <label for="duration">Test Duration (seconds):</label>
-        <input type="range" id="duration" name="duration" min="1" max="60" value="10" oninput="updateDurationDisplay(this.value)">
-        <span id="durationValue">10</span> seconds
-    </div>
+        <div>
+            <label for="port">Choose a port:</label>
+            <select name="port" id="port">
+                {% for port in ports %}
+                <option value="{{ port }}">{{ port }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <div>
-        <input type="submit" value="Run iperf3 Test">
-    </div>
-</form>
+        <div>
+            <label for="duration">Test Duration (seconds):</label>
+            <input type="range" id="duration" name="duration" min="1" max="60" value="10" oninput="updateDurationDisplay(this.value)">
+            <span id="durationValue">10</span> seconds
+        </div>
 
-    <!-- Display test results -->
-    <div>
-        <h2>Test Result</h2>
-        <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->
-    </div>
-</body>
-</html>
+        <div>
+            <label for="protocol">Choose a protocol:</label>
+            <select name="protocol" id="protocol">
+                <option value="udp">UDP</option>
+                <option value="tcp">TCP</option>
+            </select>
+        </div>
+
+        <div>
+            <input type="submit" value="Run iperf3 Test">
+        </div>
+    </form>
+
+        <!-- Display test results -->
+        <div>
+            <h2>Test Result</h2>
+            <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->
+        </div>
+
+        <!-- TextBox for Testing -->
+        <div>
+            <label for="testing">Testing:</label>
+            <input type="text" id="testing" name="testing" placeholder="Testing...">
+        </div>
+    </body>
+    </html>

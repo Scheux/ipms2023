@@ -18,5 +18,5 @@
       "name": "Server 4"
     }
   ],
-  "available_ports": [5201]
+  "available_ports": [5201,5001]
 }
