@@ -1,0 +1,11 @@
+Connecting to host 127.0.0.1, port 5201
+[  4] local 127.0.0.1 port 55418 connected to 127.0.0.1 port 5201
+[ ID] Interval           Transfer     Bandwidth
+[  4]   0.00-1.00   sec   354 MBytes  2.97 Gbits/sec                  
+[  4]   1.00-2.00   sec   223 MBytes  1.87 Gbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth
+[  4]   0.00-2.00   sec   578 MBytes  2.42 Gbits/sec                  sender
+[  4]   0.00-2.00   sec   577 MBytes  2.42 Gbits/sec                  receiver
+
+iperf Done.
