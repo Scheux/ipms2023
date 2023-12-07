@@ -16,20 +16,31 @@ def load_config():
     return data['servers'], data['available_ports']
 
 # Function to ping a server
+import subprocess
+import ipaddress
+
 def ping_server(server):
     try:
-        # Execute the ping command with a count of 1 and a timeout
-        response = subprocess.run(['ping', '-c', '1', '-t', '1', server['ip']], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
+        # Validate the IP address
+        ip = ipaddress.ip_address(server['ip'])
+
+        # Execute the ping command
+        response = subprocess.run(['ping', '-c', '1', '-t', '1', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
         # Check if the ping command was successful
         if response.returncode == 0:
             return 'Online'
         else:
             return 'Offline'
+    except ValueError:
+        # If the IP address is invalid
+        print(f"Invalid IP address: {server['ip']}")
+        return "Error - Invalid IP"
     except Exception as e:
-        # Print the exception message
+        # Other exceptions
         print(f"Error pinging {server['ip']}: {e}")
         return "Error"
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():

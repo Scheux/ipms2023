@@ -12,6 +12,10 @@
     {
       "ip": "192.168.1.102",
       "name": "Server 3"
+    },
+    {
+      "ip": "555.423.1.1",
+      "name": "Server 4"
     }
   ],
   "available_ports": [5201]
