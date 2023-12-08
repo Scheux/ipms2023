@@ -16,7 +16,6 @@ def load_config():
     return data['servers'], data['available_ports']
 
 # Function to ping a server
-import subprocess
 import ipaddress
 
 def ping_server(server):
@@ -25,7 +24,7 @@ def ping_server(server):
         ip = ipaddress.ip_address(server['ip'])
 
         # Execute the ping command
-        response = subprocess.run(['ping', '-c', '1', '-t', '1', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        response = subprocess.run(['ping', '-c', '1', '-t', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Check if the ping command was successful
         if response.returncode == 0:
@@ -57,10 +56,10 @@ def home():
         try:
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = f'iperf -c {selected_server} -p {selected_port} -t {test_duration} --udp'
+                command = f'iperf3 -c {selected_server} -p {selected_port} -t {test_duration} --udp'
             else:
                 print('TCP got selected!')
-                command = f'iperf -c {selected_server} -p {selected_port} -t {test_duration}'
+                command = f'iperf3 -c {selected_server} -p {selected_port} -t {test_duration}'
             test_result = subprocess.check_output(command, shell=True).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_result = e.output.decode('utf-8')
