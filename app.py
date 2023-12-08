@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import json
 import subprocess
-from pythonping import ping
 import threading
 import datetime
 import os
@@ -9,9 +8,15 @@ import shutil
 
 app = Flask(__name__)
 
+# Load config location from settings.json file and set it as a variable
+def load_settings():
+    with open('settings.json', 'r') as file:
+        data = json.load(file)
+    return data['serverconfig_file']
+
 # Load servers and ports from config
 def load_config():
-    with open('config.json', 'r') as file:
+    with open(load_settings(), 'r') as file:
         data = json.load(file)
     return data['servers'], data['available_ports']
 
@@ -24,7 +29,7 @@ def ping_server(server):
         ip = ipaddress.ip_address(server['ip'])
 
         # Execute the ping command
-        response = subprocess.run(['ping', '-c', '1', '-t', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        response = subprocess.run(['ping', '-n', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Check if the ping command was successful
         if response.returncode == 0:
@@ -91,6 +96,35 @@ def home():
 def ping_route(ip):
     status = ping_server({'ip': ip})
     return jsonify(status=status)
+
+@app.route('/save_settings', methods=['POST'])
+def save_settings():
+    data = request.json
+    servers_path = data.get('serversPath')
+
+    # Default path to fall back to
+    default_path = 'default_servers.json'
+
+    # Update settings.json with the new servers_path
+    try:
+        # Check if the servers_path is provided and the file exists
+        if servers_path and os.path.isfile(servers_path):
+            new_path = servers_path
+        else:
+            new_path = default_path
+
+        with open('settings.json', 'r') as file:
+            settings = json.load(file)
+
+        settings['serverconfig_file'] = new_path
+
+        with open('settings.json', 'w') as file:
+            json.dump(settings, file, indent=4)
+
+        return jsonify({'status': 'Settings updated successfully', 'pathUsed': new_path})
+
+    except Exception as e:
+        return jsonify({'status': 'Error', 'message': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -33,3 +33,18 @@ ul {
     padding: 0; /* Removes default padding */
     margin: 0; /* Removes default margin */
 }
+
+#settings-button
+{
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
+#settingsWindow
+{
+    position: fixed;
+    top: 50px;
+    bottom: 30px;
+    right: 30px;
+}
