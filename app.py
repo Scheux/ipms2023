@@ -13,8 +13,8 @@ app = Flask(__name__)
 def load_settings():
     with open('settings.json', 'r') as file:
         data = json.load(file)
-        # check if the file exists
-        if os.path.isfile(data['serverconfig_file']):
+        # check if the file exists and check if file is json file
+        if os.path.isfile(data['serverconfig_file']) and data['serverconfig_file'].endswith('.json'):
             print('File exists')
             return data['serverconfig_file']
         else:
@@ -24,8 +24,9 @@ def load_settings():
 
 # Load servers and ports from config
 def load_config():
-    with open(load_settings(), 'r') as file:
+    with open(load_settings(), 'r', encoding='ISO-8859-1') as file:
         data = json.load(file)
+
     return data['servers'], data['available_ports']
 
 # Function to ping a server
@@ -116,34 +117,11 @@ def ping_route(ip):
     status = ping_server({'ip': ip})
     return jsonify(status=status)
 
-@app.route('/save_settings', methods=['POST'])
-def save_settings():
-    data = request.json
-    servers_path = data.get('serversPath')
-
-    # Default path to fall back to
-    default_path = 'default_servers.json'
-
-    # Update settings.json with the new servers_path
-    try:
-        # Check if the servers_path is provided and the file exists
-        if servers_path and os.path.isfile(servers_path):
-            new_path = servers_path
-        else:
-            new_path = default_path
-
-        with open('settings.json', 'r') as file:
-            settings = json.load(file)
-
-        settings['serverconfig_file'] = new_path
-
-        with open('settings.json', 'w') as file:
-            json.dump(settings, file, indent=4)
-
-        return jsonify({'status': 'Settings updated successfully', 'pathUsed': new_path})
-
-    except Exception as e:
-        return jsonify({'status': 'Error', 'message': str(e)})
+@app.route('/run-settings-program', methods=['POST'])
+def run_settings_program():
+    # run settings_program.py here
+    subprocess.run(['python3.11', 'settings_program.py'])
+    return jsonify({"message": "Settings program executed successfully"})
 
 if __name__ == '__main__':
     app.run(debug=True)
