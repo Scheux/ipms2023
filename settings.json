@@ -1,3 +1,4 @@
 {
-    "serverconfig_file": "D:\\servers.json"
+    "serverconfig_file": "D:\\servers.json",
+    "default_config_file": "default_servers.json"
 }

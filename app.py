@@ -4,6 +4,8 @@ import subprocess
 import datetime
 import os
 import shutil
+import ipaddress
+import platform
 
 app = Flask(__name__)
 
@@ -11,7 +13,14 @@ app = Flask(__name__)
 def load_settings():
     with open('settings.json', 'r') as file:
         data = json.load(file)
-    return data['serverconfig_file']
+        # check if the file exists
+        if os.path.isfile(data['serverconfig_file']):
+            print('File exists')
+            return data['serverconfig_file']
+        else:
+            print('File does not exist using Fallback')
+            return data['default_config_file']
+    
 
 # Load servers and ports from config
 def load_config():
@@ -20,15 +29,23 @@ def load_config():
     return data['servers'], data['available_ports']
 
 # Function to ping a server
-import ipaddress
 
 def ping_server(server):
     try:
         # Validate the IP address
         ip = ipaddress.ip_address(server['ip'])
 
-        # Execute the ping command
-        response = subprocess.run(['ping', '-n', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # Get the operating system
+        os_name = platform.system()
+
+        if ipaddress.ip_address(ip).is_loopback:
+            return 'Online'
+
+        # Execute the ping command based on the operating system
+        if os_name == 'Windows':
+            response = subprocess.run(['ping', '-n', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        else:
+            response = subprocess.run(['ping', '-c', '4', str(ip)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         # Check if the ping command was successful
         if response.returncode == 0:
@@ -71,9 +88,12 @@ def home():
     for server in servers:
         server['status'] = 'Testing...'
 
-   # write test_result to json file 
-    if test_result == None:
-        print('No test result')
+
+    # check if test_result is None and if so, don't write to file also check if test_result is empty
+    if test_result is None:
+        print('Test result is None')
+    elif test_result == '':
+        print('No String in test result')
     else:
         with open('result.txt', 'w') as file:
             file.write(test_result)
