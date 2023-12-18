@@ -6,104 +6,35 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='mb-web-logo.ico') }}">
 </head>
 <body>
+    <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
+    <h1>Bandbreiten Messen</h1>
+    <ul>
+        {% for server in servers %}
+        <li>
+            {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
+            <script type="text/javascript">
+                updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
+            </script>
+        </li>
+        {% endfor %}
+    </ul>
 
-<!-- Settings Window/Form (hidden initially) -->
-<div id="settingsWindow" style="display:none;">
-    <label for="serversPathInput">Enter path to servers.json:</label>
-    <input type="text" id="serversPathInput" placeholder="Enter path to servers.json">
-    <button onclick="saveSettings()">Save Settings</button>
-    <button onclick="closeSettings()">Close</button>
-</div>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-        <script type="text/javascript">   
+    <!-- List of Result Files -->
+    <div id="resultsList"></div>
 
-            function updateStatus(ip, elementId) {
-                fetch('/ping/' + ip)
-                    .then(response => response.json())
-                    .then(data => {
-                        var statusElement = document.getElementById(elementId);
-                        statusElement.innerText = 'Status: ' + data.status;
-                        if (data.status === 'Online') {
-                            statusElement.className = 'status-online';
-                        } else {
-                            statusElement.className = 'status-offline';
-                        }
-                    })
-                    .catch(error => {
-                        var statusElement = document.getElementById(elementId);
-                        statusElement.innerText = 'Status: Error';
-                        statusElement.className = 'status-error';
-                    });
-            }
-            function updateDurationDisplay(value) {
-                document.getElementById('durationValue').innerText = value;
-            }
-            var settingsOpened = false;
+    <!-- Display Selected File Content -->
+    <pre id="fileContent"></pre>
 
-            // Function to open the settings window
-    function openSettings() {
-        document.getElementById('settingsWindow').style.display = 'block';
-    }
-
-    // Function to close the settings window
-    function closeSettings() {
-        document.getElementById('settingsWindow').style.display = 'none';
-    }
-
-    // Function to save settings
-    function saveSettings() {
-        var serversPath = document.getElementById('serversPathInput').value;
-        fetch('/save_settings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ serversPath: serversPath })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            alert('Settings saved successfully');
-            closeSettings();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error saving settings');
-        });
-    }
-        </script>
-    <body>
-        <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
-        <h1>Bandbreiten Messen</h1>
-        <ul>
-            {% for server in servers %}
-            <li>
-                {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
-                <script type="text/javascript">
-                    updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
-                </script>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- List of Result Files -->
-        <div id="resultsList"></div>
-
-        <!-- Display Selected File Content -->
-        <pre id="fileContent"></pre>
-
-        
-
-        <!-- Form for selecting server, port, test duration, protocol, and transport -->
-        <form method="post" action="/">
-            <div>
-                <label for="server">Choose a server:</label>
-                <select name="server" id="server">
-                    {% for server in servers %}
-                    <option value="{{ server.ip }}">{{ server.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <!-- Form for selecting server, port, test duration, protocol, and transport -->
+    <form method="post" action="/">
+        <div>
+            <label for="server">Choose a server:</label>
+            <select name="server" id="server">
+                {% for server in servers %}
+                <option value="{{ server.ip }}">{{ server.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
         <div>
             <label for="port">Choose a port:</label>
@@ -133,14 +64,38 @@
         </div>
     </form>
 
-        <!-- Display test results -->
-        <div>
-            <h2>Test Result</h2>
-            <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->
-        </div>
+    <!-- Display test results -->
+    <div>
+        <h2>Test Result</h2>
+        <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->
+    </div>
 
-        <!-- Settings button -->
-        <button id="settings-button" onclick="openSettings()">Open Settings</button>
-    </body>
-    </html>
-    
+    <!-- Settings button -->
+    <button id="settings-button" onclick="window.open('settings_program.py')">Open Settings</button>
+
+    <script type="text/javascript">
+        function updateStatus(ip, elementId) {
+            fetch('/ping/' + ip)
+                .then(response => response.json())
+                .then(data => {
+                    var statusElement = document.getElementById(elementId);
+                    statusElement.innerText = 'Status: ' + data.status;
+                    if (data.status === 'Online') {
+                        statusElement.className = 'status-online';
+                    } else {
+                        statusElement.className = 'status-offline';
+                    }
+                })
+                .catch(error => {
+                    var statusElement = document.getElementById(elementId);
+                    statusElement.innerText = 'Status: Error';
+                    statusElement.className = 'status-error';
+                });
+        }
+
+        function updateDurationDisplay(value) {
+            document.getElementById('durationValue').innerText = value;
+        }
+    </script>
+</body>
+</html>
