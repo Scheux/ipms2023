@@ -1,11 +1,5 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
-import json
-import subprocess
-import datetime
-import os
-import shutil
-import ipaddress
-import platform
+from flask import Flask, render_template, request, jsonify
+import json, subprocess, datetime, os, shutil, ipaddress, platform
 
 app = Flask(__name__)
 
@@ -61,36 +55,8 @@ def ping_server(server):
         print(f"Error pinging {server['ip']}: {e}")
         return "Error"
 
-
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    servers, ports = load_config()
-    test_result = None
-
-    if request.method == 'POST':
-        selected_server = request.form.get('server')
-        selected_port = request.form.get('port')
-        selected_protocol = request.form.get('protocol')
-        test_duration = request.form.get('duration', type=int)
-
-
-        # Run iperf3 test
-        try:
-            if selected_protocol == 'udp':
-                print('UDP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --udp'
-            else:
-                print('TCP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration}'
-            test_result = subprocess.check_output(command, shell=True).decode('utf-8')
-        except subprocess.CalledProcessError as e:
-            test_result = e.output.decode('utf-8')
-
-    for server in servers:
-        server['status'] = 'Testing...'
-
-
-    # check if test_result is None and if so, don't write to file also check if test_result is empty
+def writeFile(test_result):
+     # check if test_result is None and if so, don't write to file also check if test_result is empty
     if test_result is None:
         print('Test result is None')
     elif test_result == '':
@@ -104,11 +70,40 @@ def home():
         now = now.strftime("%Y-%m-%d_%H-%M-%S")
         os.rename('result.txt', f'{now}.txt')
 
-    
         # move result.json to results folder
         if not os.path.exists('results'):
             os.makedirs('results')
         shutil.move(f'{now}.txt', 'results')
+
+@app.route('/', methods=['GET', 'POST'])
+
+def home():
+    servers, ports = load_config()
+    test_result = None
+    
+
+    if request.method == 'POST':
+        selected_server = request.form.get('server')
+        selected_port = request.form.get('port')
+        selected_protocol = request.form.get('protocol')
+        test_duration = request.form.get('duration', type=int)
+
+        # Run iperf3 test
+        try:
+            if selected_protocol == 'udp':
+                print('UDP got selected!')
+                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} --udp'
+            else:
+                print('TCP got selected!')
+                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} '
+            test_result = subprocess.check_output(command, shell=True).decode('utf-8')
+        except subprocess.CalledProcessError as e:
+            test_result = e.output.decode('utf-8')
+
+    for server in servers:
+        server['status'] = 'Testing...'
+
+    writeFile(test_result)
 
     return render_template('app.html', servers=servers, ports=ports, test_result=test_result)
 
@@ -120,7 +115,7 @@ def ping_route(ip):
 @app.route('/run-settings-program', methods=['POST'])
 def run_settings_program():
     # run settings_program.py here
-    subprocess.run(['python3.11', 'settings_program.py'])
+    subprocess.run(['python', 'settings_program.py'])
     return jsonify({"message": "Settings program executed successfully"})
 
 if __name__ == '__main__':
