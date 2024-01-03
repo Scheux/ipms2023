@@ -14,7 +14,7 @@ body {
     text-align: center;
     margin: 0;
     position: relative;
-    font-family: 'Roboto', sans-serif;
+    font-family: Roboto;
     color: #343a40;
     background-color: #ffffff;
 }
@@ -63,6 +63,7 @@ button {
     transition-duration: 0.4s;
     cursor: pointer;
     border-radius: 25px;  /* Rounded corners */
+    font-family: Roboto;
 }
 
 button:hover {
@@ -98,6 +99,7 @@ body {
 button {
     padding: 5px 10px; /* Smaller padding */
     font-size: 14px; /* Smaller font size */
+    font-family: Roboto;
 }
 
 select {
@@ -107,6 +109,7 @@ select {
     font-size: 14px; /* Font size */
     margin: 5px; /* Margin around the dropdown */
     transition-duration: 0.4s; /* Smooth transition for hover effects */
+    font-family: Roboto;
 }
 
 select:hover {
@@ -116,12 +119,14 @@ select:hover {
 button {
     padding: 3px 7px; /* Even smaller padding */
     font-size: 12px; /* Smaller font size to align with text */
+    font-family: Roboto;
 }
 
 #test-results {
     width: 60%; /* Set a width for the container */
     margin: 0 auto; /* Center the container */
     text-align: center; /* Center the text inside the container */
+    font-family: Roboto;
 }
 
 input[type=range] {
