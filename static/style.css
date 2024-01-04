@@ -62,7 +62,7 @@ button {
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
-    border-radius: 25px;  /* Rounded corners */
+    border-radius: 10px;  /* Rounded corners */
     font-family: Roboto;
 }
 
@@ -165,7 +165,7 @@ input[type=range]::-moz-range-thumb {
 }
 
 input[type=range] {
-    width: 300px; /* Limiting width to 400 pixels */
+    width: 200px; /* Limiting width to 400 pixels */
     margin: 0 auto; /* Centering the slider */
 }
 
