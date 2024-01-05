@@ -6,7 +6,7 @@
       "name": "Server 1"
     },
     {
-      "ip": "8.8.8.8",
+      "ip": "91.200.100.35",
       "name": "Server 2"
     },
     {
@@ -22,5 +22,5 @@
       "name": "Server 5"
     }
   ],
-  "available_ports": [5201,5001,5002]
+  "available_ports": [5201,5001,5002,5200]
 }

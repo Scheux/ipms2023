@@ -1,8 +1,8 @@
 .status-online {
-    color: green;
+    color: #298100;
 }
 .status-offline {
-    color: red;
+    color: #ff0000;
 }
 .status-error {
     color: orange;
@@ -14,9 +14,9 @@ body {
     text-align: center;
     margin: 0;
     position: relative;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #333333;
-    background-color: #f2f2f2;
+    font-family: Roboto;
+    color: #343a40;
+    background-color: #ffffff;
 }
 
 #mb-logo {
@@ -49,3 +49,131 @@ ul {
     right: 30px;
 }
 
+
+button {
+    background-color: #007bff; /* Primary color for button */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 10px;  /* Rounded corners */
+    font-family: Roboto;
+}
+
+button:hover {
+    background-color: #add8e6; /* Secondary color on hover */
+    color: white;
+}
+
+body {
+    text-align: left; /* Align text to the left */
+    padding-left: 1%; /* Add some padding for aesthetics */
+}
+
+#run-button {
+    background-color: #007bff; /* Primary color for button */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 25px;  /* Rounded corners */
+}
+
+#run-button:hover {
+    background-color: #add8e6; /* Secondary color on hover */
+    color: white;
+}
+
+button {
+    padding: 5px 10px; /* Smaller padding */
+    font-size: 14px; /* Smaller font size */
+    font-family: Roboto;
+}
+
+select {
+    border: 2px solid #add8e6; /* Light blue frame */
+    border-radius: 15px; /* Rounded corners */
+    padding: 5px; /* Padding inside the dropdown */
+    font-size: 14px; /* Font size */
+    margin: 5px; /* Margin around the dropdown */
+    transition-duration: 0.4s; /* Smooth transition for hover effects */
+    font-family: Roboto;
+}
+
+select:hover {
+    border-color: #007bff; /* Change border color on hover */
+}
+
+button {
+    padding: 3px 7px; /* Even smaller padding */
+    font-size: 12px; /* Smaller font size to align with text */
+    font-family: Roboto;
+}
+
+#test-results {
+    width: 60%; /* Set a width for the container */
+    margin: 0 auto; /* Center the container */
+    text-align: center; /* Center the text inside the container */
+    font-family: Roboto;
+}
+
+input[type=range] {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 15px; /* Specified height */
+    background: #add8e6; /* Light blue background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set the opacity */
+    -webkit-transition: .2s; /* 0.2 seconds transition */
+    transition: opacity .2s;
+
+}
+
+input[type=range]:hover {
+    opacity: 1; /* Fully opaque on hover */
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #007bff; /* Primary color for slider handle */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 50%; /* Make it circular */
+}
+
+input[type=range]::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    background: #007bff; /* Primary color for slider handle */
+    cursor: pointer; /* Cursor on hover */
+    border-radius: 50%; /* Make it circular */
+}
+
+input[type=range] {
+    width: 200px; /* Limiting width to 400 pixels */
+    margin: 0 auto; /* Centering the slider */
+}
+
+#testResultContainer
+{
+ /* set container in the middle of the webpage its size is variable so it should format itself */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

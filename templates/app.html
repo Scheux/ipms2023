@@ -4,7 +4,7 @@
     <title>Bandbreiten Messen</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='mb-web-logo.ico') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand">
 </head>
 <body>
 
@@ -32,7 +32,6 @@
             function updateDurationDisplay(value) {
                 document.getElementById('durationValue').innerText = value;
             }
-            var settingsOpened = false;
 
             function runSettingsProgram() {
         fetch('/run-settings-program', { method: 'POST' })
@@ -46,72 +45,69 @@
             alert('Error running settings program');
         });
     }
+
+            function runTest() {
+                console.log('Running test...');
+                alert('Test started! Click Ok to continue.');
+            }
         </script>
     <body>
         <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
-        <h1>Bandbreiten Messen</h1>
-        <ul>
-            {% for server in servers %}
-            <li>
-                {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
-                <script type="text/javascript">
-                    updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
-                </script>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <!-- List of Result Files -->
-        <div id="resultsList"></div>
-
-        <!-- Display Selected File Content -->
-        <pre id="fileContent"></pre>
-
         
 
         <!-- Form for selecting server, port, test duration, protocol, and transport -->
         <form method="post" action="/">
-            <div>
+
+            <h1>Bandbreiten Messen</h1>
+                <ul>
+                {% for server in servers %}
+                    <li>
+                        {{ server.name }} (IP: {{ server.ip }}) - <span id="status-{{ loop.index }}">Status: {{ server.status }}</span>
+                            <script type="text/javascript">
+                                updateStatus('{{ server.ip }}', 'status-{{ loop.index }}');
+                            </script>
+                    </li>
+                {% endfor %}
+                </ul>
+
+            <div id="Test-Settings">
+
                 <label for="server">Choose a server:</label>
                 <select name="server" id="server">
                     {% for server in servers %}
                     <option value="{{ server.ip }}">{{ server.name }}</option>
                     {% endfor %}
                 </select>
+
+                <label for="port">Choose a port:</label>
+                <select name="port" id="port">
+                    {% for port in ports %}
+                    <option value="{{ port }}">{{ port }}</option>
+                    {% endfor %}
+                </select>
+
+                <div id="duration-container">
+                    <label for="duration">Test Duration (seconds):</label>
+                        <input type="range" id="duration" name="duration" min="1" max="60" value="10" oninput="updateDurationDisplay(this.value)">
+                    <span id="durationValue">10</span> seconds
+                </div>
+
+                <label for="protocol">Choose a protocol:</label>
+                    <select name="protocol" id="protocol">
+                        <option value="tcp">TCP</option>
+                        <option value="udp">UDP</option>
+                    </select>
+
+                <div id="run-container">
+                    <button id="run-button" onclick="runTest()">Run Test!</button>
+                </div>
             </div>
-
-        <div>
-            <label for="port">Choose a port:</label>
-            <select name="port" id="port">
-                {% for port in ports %}
-                <option value="{{ port }}">{{ port }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div>
-            <label for="duration">Test Duration (seconds):</label>
-            <input type="range" id="duration" name="duration" min="1" max="60" value="10" oninput="updateDurationDisplay(this.value)">
-            <span id="durationValue">10</span> seconds
-        </div>
-
-        <div>
-            <label for="protocol">Choose a protocol:</label>
-            <select name="protocol" id="protocol">
-                <option value="tcp">TCP</option>
-                <option value="udp">UDP</option>
-            </select>
-        </div>
-
-        <div>
-            <input type="submit" value="Run Test!" id="run-button">
-        </div>
     </form>
 
         <!-- Display test results -->
         <div id="testResultContainer">
             <h2>Test Result</h2>
-            <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->
+            <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->                  
         </div>
 
         <!-- Settings button -->

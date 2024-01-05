@@ -79,7 +79,13 @@ def writeFile(test_result):
 
 def home():
     servers, ports = load_config()
-    test_result = None
+    test_Result = ""
+    local_ip = None
+    local_port = None
+    host_ip = None
+    host_port = None
+    end_Result = ""
+
     
 
     if request.method == 'POST':
@@ -92,20 +98,71 @@ def home():
         try:
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --udp'
+                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} --udp --json'
             else:
                 print('TCP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} '
-            test_result = subprocess.check_output(command, shell=True).decode('utf-8')
+                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} --json '
+            test_Result = subprocess.check_output(command).decode('utf-8')
         except subprocess.CalledProcessError as e:
-            test_result = e.output.decode('utf-8')
+            test_Result = e.output.decode('utf-8')
 
     for server in servers:
         server['status'] = 'Testing...'
 
-    writeFile(test_result)
+    writeFile(test_Result)
 
-    return render_template('app.html', servers=servers, ports=ports, test_result=test_result)
+    if test_Result:
+        try:
+            resultJSON = json.loads(test_Result)
+
+            local_ip = resultJSON['start']['connected'][0]['local_host']
+            host_ip = resultJSON['start']['connected'][0]['remote_host']
+            local_port = resultJSON['start']['connected'][0]['local_port']
+            host_port = resultJSON['start']['connected'][0]['remote_port']
+
+            # Initialize end_Result with connection information and headers
+            end_Result = "Connecting to host {}, port {}\n".format(host_ip, host_port)
+            end_Result += "[  4] local {} port {} connected to {} port {}\n\n".format(local_ip, local_port, host_ip, host_port)
+
+            # Adding headers
+            end_Result += "{:<8} {:<30} {:<40} {:<15}\n".format("[ ID]", "Interval", "Transfer", "Bandwidth")
+            end_Result += "-" * 95 + "\n"  # Adjust the number of dashes according to your header width
+
+            # Adding data for each interval
+            for interval in resultJSON['intervals']:
+                start = interval['streams'][0]['start']
+                end = interval['streams'][0]['end']
+                transfer = interval['sum']['bytes'] / 1000000  # Convert to MBytes and round to 0 decimals
+                transfer = "{:.0f}".format(transfer)
+                bandwidth = interval['sum']['bits_per_second'] / 1000000000  # Convert to Gbits/sec
+                bandwidth = "{:.2f}".format(bandwidth)
+                end_Result += "[  4] {:5.2f}-{:<5.2f} sec {:>18} MBytes {:>28} Gbits/sec\n".format(start, end, transfer, bandwidth)
+
+            end_Result += "-" * 95 + "\n"  # Separator
+
+            # Assuming sender and receiver total data is available in resultJSON
+            sender_total_mbytes = resultJSON['end']['sum_sent']['bytes'] / 1000000
+            sender_total_mbytes = "{:.0f}".format(sender_total_mbytes)
+            sender_total_bandwidth_gbits = resultJSON['end']['sum_sent']['bits_per_second'] / 1000000000
+            sender_total_bandwidth_gbits = "{:.2f}".format(sender_total_bandwidth_gbits)
+            receiver_total_mbytes = resultJSON['end']['sum_received']['bytes'] / 1000000
+            receiver_total_mbytes = "{:.0f}".format(receiver_total_mbytes)
+            receiver_total_bandwidth_gbits = resultJSON['end']['sum_received']['bits_per_second'] / 1000000000
+            receiver_total_bandwidth_gbits = "{:.2f}".format(receiver_total_bandwidth_gbits)
+
+            # Adding summary rows
+            end_Result += "{:<8} {:<30} {:<40} {:<15}\n".format("[ ID]", "Interval", "Transfer", "Bandwidth")
+            end_Result += "[  4]   0.00- 3.00 sec   {:>14} MBytes   {:>27} Gbits/sec             sender\n".format(sender_total_mbytes, sender_total_bandwidth_gbits)
+            end_Result += "[  4]   0.00- 3.00 sec   {:>14} MBytes   {:>27} Gbits/sec             receiver\n".format(receiver_total_mbytes, receiver_total_bandwidth_gbits)
+
+            # Now end_Result contains the whole output
+        except json.JSONDecodeError:
+            print("Error: test_Result is not a valid JSON string.")
+
+
+        return render_template('app.html', servers=servers, ports=ports, test_result=end_Result)
+
+    return render_template("app.html", servers=servers, ports=ports)
 
 @app.route('/ping/<ip>')
 def ping_route(ip):
