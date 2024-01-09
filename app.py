@@ -98,11 +98,11 @@ def home():
         try:
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} --udp --json'
+                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --udp --json'
             else:
                 print('TCP got selected!')
-                command = f'iperf3.exe -c {selected_server} -p {selected_port} -t {test_duration} --json '
-            test_Result = subprocess.check_output(command).decode('utf-8')
+                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --json '
+            test_Result = subprocess.check_output(command, shell=True).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_Result = e.output.decode('utf-8')
 
@@ -172,7 +172,7 @@ def ping_route(ip):
 @app.route('/run-settings-program', methods=['POST'])
 def run_settings_program():
     # run settings_program.py here
-    subprocess.run(['python', 'settings_program.py'])
+    subprocess.run(['python3', 'settings_program.py'])
     return jsonify({"message": "Settings program executed successfully"})
 
 if __name__ == '__main__':

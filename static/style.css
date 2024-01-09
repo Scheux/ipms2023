@@ -24,7 +24,7 @@
 }
 
 select {
-    border: 2px solid #007bff; /* Light blue frame */
+    border: 2px solid #ff5100; /* Light blue frame */
     border-radius: 5px; /* Rounded corners */
     padding: 3px; /* Padding inside the dropdown */
     font-size: 14px; /* Font size */
@@ -37,30 +37,15 @@ select:hover {
     border-color: #004792; /* Change border color on hover */
 }
 
-label {
+body {
+    background-color: #ffffff;
     font-family: Quicksand;
-}
-
-ul {
-    font-family: Quicksand;
-}
-
-h1 {
-    font-family: Quicksand;
-}
-
-span {
-    font-family: Quicksand;
+    position: relative;
 }
 
 button {
-    font-family: Quicksand;
-}
-
-#testResultContainer {
-    font-family: Quicksand;
-}
-
-#testResult {
-    font-family: Quicksand;
+    border-color: #ff5100;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: #ffffff;
 }
