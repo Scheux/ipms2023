@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
-import json
-import sys
+import json, sys, os
+
 
 class SecureTk(tk.Tk):
     def applicationSupportsSecureRestorableState(self):
@@ -9,12 +9,19 @@ class SecureTk(tk.Tk):
 
 # Function to handle file selection
 def select_file():
-    file_path = filedialog.askopenfilename()
-    # Add your code to handle the selected file here
-    # Set the path in settings.json
-    settings = {"serverconfig_file": file_path, "default_config_file": "default_servers.json"}  # Set the serverconfig_file key with the file_path value
-    with open("settings.json", "w") as file:
-        json.dump(settings, file)
+    try:
+        file_path = filedialog.askopenfilename()
+        # Validate the selected file
+        if not os.path.isfile(file_path):
+            tk.messagebox.showerror("Error", "Invalid file selected")
+            return
+        # Set the path in settings.json
+        settings = {"serverconfig_file": file_path, "default_config_file": "default_servers.json"}
+        with open("settings.json", "w") as file:
+            json.dump(settings, file)
+        tk.messagebox.showinfo("Success", "File selected successfully")
+    except Exception as e:
+        tk.messagebox.showerror("Error", str(e))
 
 # Function to handle saving settings
 def save_settings():

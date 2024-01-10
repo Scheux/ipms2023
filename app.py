@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, jsonify
-from flask_limiter import Limiter
 import json, subprocess, datetime, os, shutil, ipaddress, platform
 
-def get_remote_address():
-    return request.remote_addr
+
 
 app = Flask(__name__)
-limiter = Limiter(app=app, key_func=get_remote_address)
 
 def validate_file_path(file_path):
     # Check if the file exists
@@ -46,14 +43,21 @@ def load_settings():
 # Load servers and ports from config
 def load_config():
     config_file_path = load_settings()
+    backup_file_path = 'default_servers.json'  # replace with your backup file path
+
     try:
         validate_file_path(config_file_path)
     except ValueError as e:
         print(f"Invalid config file: {e}")
-        return None, None
+        config_file_path = backup_file_path  # fallback to backup file
 
     with open(config_file_path, 'r', encoding='ISO-8859-1') as file:
         data = json.load(file)
+
+    if 'servers' not in data or 'available_ports' not in data:
+        print(f"Missing keys in config file, falling back to backup file")
+        with open(backup_file_path, 'r', encoding='ISO-8859-1') as backup_file:
+            data = json.load(backup_file)
 
     return data['servers'], data['available_ports']
 
@@ -139,10 +143,10 @@ def home():
 
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
+                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
             else:
                 print('TCP got selected!')
-                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
+                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
             test_Result = subprocess.check_output(command).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_Result = e.output.decode('utf-8')
@@ -200,14 +204,13 @@ def home():
             print("Error: test_Result is not a valid JSON string.")
 
         # Write test result to file
-        writeFile(test_Result)
+        writeFile(end_Result)
 
         return render_template('app.html', servers=servers, ports=ports, test_result=end_Result)
 
     return render_template("app.html", servers=servers, ports=ports)
 
 @app.route('/ping/<ip>')
-@limiter.limit("5/minute")
 def ping_route(ip):
     status = ping_server({'ip': ip})
     return jsonify(status=status)

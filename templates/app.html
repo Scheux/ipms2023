@@ -7,54 +7,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand">
 </head>
 <body>
-
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
         <script type="text/javascript">   
-
-            function updateStatus(ip, elementId) {
-                fetch('/ping/' + ip)
-                    .then(response => response.json())
-                    .then(data => {
-                        var statusElement = document.getElementById(elementId);
-                        statusElement.innerText = 'Status: ' + data.status;
-                        if (data.status === 'Online') {
-                            statusElement.className = 'status-online';
-                        } else {
-                            statusElement.className = 'status-offline';
-                        }
-                    })
-                    .catch(error => {
-                        var statusElement = document.getElementById(elementId);
-                        statusElement.innerText = 'Status: Error';
-                        statusElement.className = 'status-error';
-                    });
-            }
-            function updateDurationDisplay(value) {
-                document.getElementById('durationValue').innerText = value;
-            }
-
-            function runSettingsProgram() {
-        fetch('/run-settings-program', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.message);
-            alert('Settings program executed successfully');
-        })
-        .catch(error => {
-            console.error('Error running settings program:', error);
-            alert('Error running settings program');
-        });
-    }
-
-            function runTest() {
-                console.log('Running test...');
-                alert('Test started! Click Ok to continue.');
-            }
         </script>
     <body>
         <img src="{{ url_for('static', filename='mb-logo.png') }}" alt="MB Logo" id="mb-logo">
-        
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
 
+        
+        
         <!-- Form for selecting server, port, test duration, protocol, and transport -->
         <form method="post" action="/">
 
@@ -69,6 +29,12 @@
                     </li>
                 {% endfor %}
                 </ul>
+            
+            <div id="status-message">
+                <label for="status" id="status-title">Status:</label>
+                <span id="status-text">Ready!</span>
+            </div>
+
 
             <div id="Test-Settings">
 
