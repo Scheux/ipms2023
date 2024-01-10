@@ -1,24 +1,58 @@
 from flask import Flask, render_template, request, jsonify
+from flask_limiter import Limiter
 import json, subprocess, datetime, os, shutil, ipaddress, platform
 
+def get_remote_address():
+    return request.remote_addr
+
 app = Flask(__name__)
+limiter = Limiter(app=app, key_func=get_remote_address)
+
+def validate_file_path(file_path):
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        raise ValueError("File does not exist")
+
+    # Check if the path is a file
+    if not os.path.isfile(file_path):
+        raise ValueError("Path is not a file")
+
+    # Check if the file is readable
+    if not os.access(file_path, os.R_OK):
+        raise ValueError("File is not readable")
+
+    return True
+
 
 # Load config location from settings.json file and set it as a variable
 def load_settings():
-    with open('settings.json', 'r') as file:
+
+ with open('settings.json', 'r') as file:
         data = json.load(file)
-        # check if the file exists and check if file is json file
-        if os.path.isfile(data['serverconfig_file']) and data['serverconfig_file'].endswith('.json'):
+        config_file = data['serverconfig_file']
+        default_config_file = data['default_config_file']
+
+        # Validate the config file path
+        try:
+            validate_file_path(config_file)
             print('File exists')
-            return data['serverconfig_file']
-        else:
-            print('File does not exist using Fallback')
-            return data['default_config_file']
+            return config_file
+        except ValueError:
+            print('File does not exist or is not valid, using fallback')
+            validate_file_path(default_config_file)
+            return default_config_file
     
 
 # Load servers and ports from config
 def load_config():
-    with open(load_settings(), 'r', encoding='ISO-8859-1') as file:
+    config_file_path = load_settings()
+    try:
+        validate_file_path(config_file_path)
+    except ValueError as e:
+        print(f"Invalid config file: {e}")
+        return None, None
+
+    with open(config_file_path, 'r', encoding='ISO-8859-1') as file:
         data = json.load(file)
 
     return data['servers'], data['available_ports']
@@ -96,20 +130,26 @@ def home():
 
         # Run iperf3 test
         try:
+            if not str(selected_port).isdigit() or not 1 <= int(selected_port) <= 65535:
+                raise ValueError("Invalid port")
+
+            # Validate the test duration
+            if not str(test_duration).isdigit() or not 1 <= int(test_duration) <= 3600:  # Limit to 1 hour for example
+                raise ValueError("Invalid test duration")
+
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --udp --json'
+                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
             else:
                 print('TCP got selected!')
-                command = f'iperf3-darwin -c {selected_server} -p {selected_port} -t {test_duration} --json '
-            test_Result = subprocess.check_output(command, shell=True).decode('utf-8')
+                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
+            test_Result = subprocess.check_output(command).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_Result = e.output.decode('utf-8')
 
     for server in servers:
         server['status'] = 'Testing...'
 
-    writeFile(test_Result)
 
     if test_Result:
         try:
@@ -159,12 +199,15 @@ def home():
         except json.JSONDecodeError:
             print("Error: test_Result is not a valid JSON string.")
 
+        # Write test result to file
+        writeFile(test_Result)
 
         return render_template('app.html', servers=servers, ports=ports, test_result=end_Result)
 
     return render_template("app.html", servers=servers, ports=ports)
 
 @app.route('/ping/<ip>')
+@limiter.limit("5/minute")
 def ping_route(ip):
     status = ping_server({'ip': ip})
     return jsonify(status=status)
