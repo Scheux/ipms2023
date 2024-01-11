@@ -143,10 +143,10 @@ def home():
 
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
+                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
             else:
                 print('TCP got selected!')
-                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
+                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
             test_Result = subprocess.check_output(command).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_Result = e.output.decode('utf-8')
