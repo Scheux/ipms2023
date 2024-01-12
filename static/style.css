@@ -81,7 +81,7 @@ button {
 
 #chart-container {
     position: absolute;
-    left: 230%;
+    left: 800px;
     top: 140px;
     width: 200%;  /* Adjust as needed */
     height: 200%;  /* Adjust as needed */
