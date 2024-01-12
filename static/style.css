@@ -81,9 +81,9 @@ button {
 
 #chart-container {
     position: absolute;
-    left: 800px;
-    top: 140px;
-    width: 200%;  /* Adjust as needed */
-    height: 200%;  /* Adjust as needed */
+    left: 45vw;  /* Adjust as needed */
+    top: 10vh;  /* Adjust as needed */
+    width: 50vw;  /* Adjust as needed */
+    height: 80vh;  /* Adjust as needed */
     overflow: auto;  /* Add scrollbars if the content is larger than the container */
 }
