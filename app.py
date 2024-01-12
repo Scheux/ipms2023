@@ -123,6 +123,11 @@ def home():
     host_ip = None
     host_port = None
     end_Result = ""
+    display_result = ""
+
+
+    # Initialize an empty list to store the bandwidth data
+    bandwidth_data = []
 
     
 
@@ -143,10 +148,10 @@ def home():
 
             if selected_protocol == 'udp':
                 print('UDP got selected!')
-                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
+                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--udp', '--json']
             else:
                 print('TCP got selected!')
-                command = ['iperf3-darwin', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
+                command = ['iperf3.exe', '-c', str(selected_server), '-p', str(selected_port), '-t', str(test_duration), '--json']
             test_Result = subprocess.check_output(command).decode('utf-8')
         except subprocess.CalledProcessError as e:
             test_Result = e.output.decode('utf-8')
@@ -181,6 +186,8 @@ def home():
                 bandwidth = interval['sum']['bits_per_second'] / 1000000000  # Convert to Gbits/sec
                 bandwidth = "{:.2f}".format(bandwidth)
                 end_Result += "[  4] {:5.2f}-{:<5.2f} sec {:>18} MBytes {:>28} Gbits/sec\n".format(start, end, transfer, bandwidth)
+                bandwidth_data.append(bandwidth)
+
 
             end_Result += "-" * 95 + "\n"  # Separator
 
@@ -206,9 +213,21 @@ def home():
         # Write test result to file
         writeFile(end_Result)
 
-        return render_template('app.html', servers=servers, ports=ports, test_result=end_Result)
+        # Write to display_result the avg bandwidth the time of the test and the date and ip of sender and receiver
+        
+        display_result += "Test duration: {} seconds\n".format(test_duration)
 
-    return render_template("app.html", servers=servers, ports=ports)
+       
+        average_bandwidth = sum(float(b) for b in bandwidth_data) / len(bandwidth_data)
+        display_result += "\nAverage bandwidth: {:.2f} Gbits/sec\n".format(average_bandwidth)
+        display_result += "Date: {}\n".format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        display_result += "Sender IP: {}\n".format(local_ip)
+        display_result += "Receiver IP: {}\n".format(host_ip)
+
+
+        return render_template('app.html', servers=servers, ports=ports, test_result=display_result,bandwidth_data=bandwidth_data)
+
+    return render_template("app.html", servers=servers, ports=ports, bandwidth_data=bandwidth_data)
 
 @app.route('/ping/<ip>')
 def ping_route(ip):
