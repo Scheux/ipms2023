@@ -5,6 +5,7 @@
     --padding: 3px;
     --transition-duration: 0.4s;
     --text-align: center;
+    
 }
 
 body {
@@ -74,6 +75,15 @@ button {
     padding: 0;
 }
 
+#testResult {
+    font-family: Quicksand;
+}
 
-
-
+#chart-container {
+    position: absolute;
+    left: 45vw;  /* Adjust as needed */
+    top: 10vh;  /* Adjust as needed */
+    width: 50vw;  /* Adjust as needed */
+    height: 80vh;  /* Adjust as needed */
+    overflow: auto;  /* Add scrollbars if the content is larger than the container */
+}

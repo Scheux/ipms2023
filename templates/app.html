@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='mb-web-logo.ico') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
         <script type="text/javascript">   
@@ -76,6 +77,44 @@
             <pre id="testResult">{{ test_result }}</pre> <!-- Use the <pre> tag here -->                  
         </div>
 
+        <div id="chart-container">
+            <canvas id="bandwidthChart"></canvas>
+            <script>
+                // Get the bandwidth data from the server
+                var bandwidthData = {{ bandwidth_data|tojson|safe }};
+
+                // Create a new line chart
+                var ctx = document.getElementById('bandwidthChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [...Array(bandwidthData.length).keys()],  // Generate labels from 0 to the length of bandwidthData
+                        datasets: [{
+                            label: 'Bandwidth (Gbits/sec)',
+                            data: bandwidthData,
+                            borderColor: 'rgb(255, 81, 10)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Time (seconds)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Bandwidth (Gbits/sec)'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
         <!-- Settings button -->
         <button id="settings-button" onclick="runSettingsProgram()">Open Settings</button>
     </body>
