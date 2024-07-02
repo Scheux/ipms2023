@@ -25,7 +25,6 @@ def select_file():
 
 # Function to handle saving settings
 def save_settings():
-    # Add your code to save the settings here
     pass
 
 # Function to exit the program
